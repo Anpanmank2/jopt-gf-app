@@ -3,49 +3,72 @@
     "eventName": "2026 Osaka #01",
     "period": "2026.03.18 – 03.22",
     "stuffAlbumId": "72177720332300800",
-    "companionAlbumId": "TODO",
+    "companionAlbumId": "72177720332323068",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/with/72177720332323068",
+    "thumbnailUrl": "https://live.staticflickr.com/65535/55153288532_5d80e63cab_z.jpg",
     "isLatest": true
   },
   {
     "eventName": "2026 Sapporo #01",
     "period": "2026.02.20 – 02.23",
     "stuffAlbumId": "72177720332049750",
-    "companionAlbumId": "TODO"
+    "companionAlbumId": "72177720332055861",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/with/72177720332055861",
+    "thumbnailUrl": "https://live.staticflickr.com/65535/55106409899_f506d5c691_z.jpg",
+    "isLatest": false
   },
   {
     "eventName": "2026 Tokyo #01",
     "period": "2025.12.27 – 2026.01.04",
     "stuffAlbumId": "72177720331126907",
-    "companionAlbumId": "TODO"
+    "companionAlbumId": "72177720331151914",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/with/72177720331151914",
+    "thumbnailUrl": "https://live.staticflickr.com/65535/55007899639_669154e1d1_z.jpg",
+    "isLatest": false
   },
   {
     "eventName": "2025 Osaka #02",
     "period": "2025.10.30 – 11.03",
-    "stuffAlbumId": "TODO",
-    "companionAlbumId": "TODO"
+    "stuffAlbumId": null,
+    "companionAlbumId": null,
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/",
+    "thumbnailUrl": null,
+    "isLatest": false
   },
   {
     "eventName": "2025 Tokyo #03",
     "period": "2025.10.09 – 10.13",
-    "stuffAlbumId": "TODO",
-    "companionAlbumId": "TODO"
+    "stuffAlbumId": null,
+    "companionAlbumId": null,
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/",
+    "thumbnailUrl": null,
+    "isLatest": false
   },
   {
     "eventName": "2025 Sapporo #02",
     "period": "2025.09.12 – 09.15",
-    "stuffAlbumId": "TODO",
-    "companionAlbumId": "TODO"
+    "stuffAlbumId": null,
+    "companionAlbumId": null,
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/",
+    "thumbnailUrl": null,
+    "isLatest": false
   },
   {
     "eventName": "2025 Tokyo #02",
     "period": "2025.07.17 – 07.21",
-    "stuffAlbumId": "TODO",
-    "companionAlbumId": "TODO"
+    "stuffAlbumId": null,
+    "companionAlbumId": null,
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/",
+    "thumbnailUrl": null,
+    "isLatest": false
   },
   {
     "eventName": "2025 Grand Final",
     "period": "2025.04.25 – 05.06",
-    "stuffAlbumId": "TODO",
-    "companionAlbumId": "TODO"
+    "stuffAlbumId": null,
+    "companionAlbumId": null,
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/",
+    "thumbnailUrl": null,
+    "isLatest": false
   }
 ]
