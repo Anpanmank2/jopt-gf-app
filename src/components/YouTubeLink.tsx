@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const CHANNEL_URL = "https://youtube.com/@japanopenpokertour";
+const CHANNEL_URL = "https://www.youtube.com/@JapanOpenPokerTour";
+const EMBED_VIDEO_ID = "ajYjvqUr7CY";
+const THUMBNAIL_URL = `https://i.ytimg.com/vi/${EMBED_VIDEO_ID}/hqdefault.jpg`;
 
 function YouTubeIcon() {
   return (
@@ -14,68 +16,48 @@ function YouTubeIcon() {
 }
 
 export default function YouTubeLink() {
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchThumbnail() {
-      try {
-        const res = await fetch(
-          `https://www.youtube.com/oembed?url=${encodeURIComponent(
-            CHANNEL_URL
-          )}&format=json`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          if (data.thumbnail_url) {
-            setThumbnailUrl(data.thumbnail_url);
-            return;
-          }
-        }
-      } catch {
-        // silent fallback
-      }
-    }
-    fetchThumbnail();
-  }, []);
+  const [playing, setPlaying] = useState(false);
 
   return (
     <section>
       <h3 className="text-xs font-bold tracking-[2px] text-blue-900 uppercase mb-3">
         JOPT OFFICIAL YOUTUBE
       </h3>
-      <a
-        href={CHANNEL_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block border border-border-default rounded-lg overflow-hidden hover:shadow-sm transition-shadow"
-      >
-        {/* Thumbnail */}
-        <div className="relative w-full aspect-video bg-blue-50">
-          {thumbnailUrl ? (
-            <img
-              src={thumbnailUrl}
-              alt="JOPT Official YouTube"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = "none";
-              }}
+
+      {/* Embedded video player / thumbnail */}
+      <div className="w-full rounded-lg overflow-hidden border border-border-default">
+        <div className="relative w-full aspect-video bg-black">
+          {playing ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${EMBED_VIDEO_ID}?autoplay=1&rel=0`}
+              title="JOPT Official Video"
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <YouTubeIcon />
-            </div>
+            <button
+              onClick={() => setPlaying(true)}
+              className="w-full h-full relative"
+            >
+              <img
+                src={THUMBNAIL_URL}
+                alt="JOPT Official YouTube"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                <div className="w-14 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <polygon points="6 3 20 12 6 21 6 3" />
+                  </svg>
+                </div>
+              </div>
+            </button>
           )}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-            <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                <polygon points="6 3 20 12 6 21 6 3" />
-              </svg>
-            </div>
-          </div>
         </div>
 
-        {/* Info */}
-        <div className="flex items-center gap-3 p-3">
+        {/* Info bar */}
+        <div className="flex items-center gap-3 p-3 bg-white">
           <div className="shrink-0">
             <YouTubeIcon />
           </div>
@@ -89,13 +71,18 @@ export default function YouTubeLink() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="px-3 pb-3">
+        {/* CTA link to channel */}
+        <a
+          href={CHANNEL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block px-3 pb-3 bg-white"
+        >
           <span className="text-xs font-medium text-blue-700">
             配信はこちらから →
           </span>
-        </div>
-      </a>
+        </a>
+      </div>
     </section>
   );
 }
