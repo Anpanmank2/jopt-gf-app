@@ -1,16 +1,116 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import scheduleData from "@/data/jopt_gf2026_data.json";
+import rawData from "@/data/jopt_gf2026_data.json";
 import EventCard from "@/components/EventCard";
 
 type GameFilter = "All" | "NLH" | "PLO" | "MIX" | "SAT";
 
 const FILTERS: GameFilter[] = ["All", "NLH", "PLO", "MIX", "SAT"];
 
+const FILTER_ACTIVE_STYLES: Record<GameFilter, string> = {
+  All: "bg-blue-900 text-white border-blue-900",
+  NLH: "bg-blue-700 text-white border-blue-700",
+  PLO: "bg-purple-600 text-white border-purple-600",
+  MIX: "bg-amber-500 text-white border-amber-500",
+  SAT: "bg-blue-100 text-blue-900 border-blue-100",
+};
+
+// Regroup events: 00:00-08:59 start times belong to previous day
+interface EventItem {
+  eventNumber: string;
+  name: string;
+  gameType: string;
+  date: string;
+  startTime: string;
+  lateRegClose: string | null;
+  lateRegLevel: number | null;
+  startingChips: number | null;
+  buyIn: number | null;
+  buyInDisplay: string | null;
+  gtd: number | null;
+  gtdDisplay: string | null;
+  isMainEvent: boolean;
+  isSatellite: boolean;
+  reentry: string;
+  day2Condition: string | null;
+  ruleNotes: string | null;
+  structure: unknown;
+}
+
+interface DayGroup {
+  date: string;
+  dayLabel: string;
+  events: EventItem[];
+}
+
+function buildDayGroups(): DayGroup[] {
+  // Collect all unique dates from the raw data to preserve day order
+  const dateLabels: Record<string, string> = {};
+  for (const day of rawData.days) {
+    dateLabels[day.date] = day.dayLabel;
+  }
+
+  // Build map: date -> events (regrouping late-night events to previous day)
+  const grouped: Record<string, EventItem[]> = {};
+
+  // Initialize with all original dates (preserves order even if empty after regroup)
+  for (const day of rawData.days) {
+    grouped[day.date] = [];
+  }
+
+  for (const day of rawData.days) {
+    for (const evt of day.events) {
+      const hour = parseInt(evt.startTime.split(":")[0], 10);
+      let targetDate = evt.date;
+
+      if (hour < 9) {
+        // Belongs to previous day
+        const d = new Date(evt.date + "T00:00:00");
+        d.setDate(d.getDate() - 1);
+        const prevDate = d.toISOString().slice(0, 10);
+        // Only regroup if previous date exists in our data
+        if (grouped[prevDate] !== undefined) {
+          targetDate = prevDate;
+        }
+      }
+
+      if (!grouped[targetDate]) {
+        grouped[targetDate] = [];
+      }
+      grouped[targetDate].push(evt as unknown as EventItem);
+    }
+  }
+
+  // Sort events within each day by startTime
+  // For regrouped events, late-night (00:00-08:59) should come AFTER daytime events
+  for (const date of Object.keys(grouped)) {
+    grouped[date].sort((a, b) => {
+      const ha = parseInt(a.startTime.split(":")[0], 10);
+      const hb = parseInt(b.startTime.split(":")[0], 10);
+      // Treat 00-08 as 24-32 for sorting
+      const sortA = ha < 9 ? ha + 24 : ha;
+      const sortB = hb < 9 ? hb + 24 : hb;
+      if (sortA !== sortB) return sortA - sortB;
+      return a.startTime.localeCompare(b.startTime);
+    });
+  }
+
+  // Build ordered array
+  return rawData.days
+    .map((day) => ({
+      date: day.date,
+      dayLabel: day.dayLabel,
+      events: grouped[day.date] || [],
+    }))
+    .filter((d) => d.events.length > 0);
+}
+
+const dayGroups = buildDayGroups();
+
 function getDefaultDayIndex(): number {
   const today = new Date().toISOString().slice(0, 10);
-  const idx = scheduleData.days.findIndex((d) => d.date === today);
+  const idx = dayGroups.findIndex((d) => d.date === today);
   return idx >= 0 ? idx : 0;
 }
 
@@ -19,7 +119,7 @@ export default function SchedulePage() {
   const [filter, setFilter] = useState<GameFilter>("All");
   const tabsRef = useRef<HTMLDivElement>(null);
 
-  const day = scheduleData.days[selectedIdx];
+  const day = dayGroups[selectedIdx];
 
   useEffect(() => {
     const el = tabsRef.current?.children[selectedIdx] as
@@ -47,7 +147,7 @@ export default function SchedulePage() {
         ref={tabsRef}
         className="flex overflow-x-auto hide-scrollbar bg-bg-secondary border-b border-border-default sticky top-[52px] z-40"
       >
-        {scheduleData.days.map((d, i) => {
+        {dayGroups.map((d, i) => {
           const active = i === selectedIdx;
           return (
             <button
@@ -72,13 +172,14 @@ export default function SchedulePage() {
       <div className="flex gap-1.5 px-4 pt-3 pb-1 overflow-x-auto hide-scrollbar">
         {FILTERS.map((f) => {
           const active = f === filter;
+          const activeStyle = FILTER_ACTIVE_STYLES[f];
           return (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`shrink-0 px-3 py-1.5 text-[11px] font-medium rounded-full border transition-colors ${
                 active
-                  ? "bg-blue-900 text-white border-blue-900"
+                  ? activeStyle
                   : "bg-white text-text-secondary border-border-default hover:bg-bg-secondary"
               }`}
             >
@@ -107,7 +208,10 @@ export default function SchedulePage() {
           </div>
         ) : (
           filteredEvents.map((evt, i) => (
-            <EventCard key={`${evt.eventNumber}-${evt.startTime}-${i}`} event={evt} />
+            <EventCard
+              key={`${evt.eventNumber}-${evt.startTime}-${i}`}
+              event={evt as any}
+            />
           ))
         )}
       </div>

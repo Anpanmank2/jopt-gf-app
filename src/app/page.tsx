@@ -10,8 +10,8 @@ export default function HomePage() {
       <HeroBanner />
       <div className="px-4 py-6 space-y-6">
         <PromoCarousel />
-        <VenueAccess />
         <YouTubeLink />
+        <VenueAccess />
         <FollowButtons />
       </div>
     </div>

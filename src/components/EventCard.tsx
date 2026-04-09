@@ -39,9 +39,9 @@ interface EventData {
 }
 
 const BADGE_STYLES: Record<string, string> = {
-  NLH: "bg-blue-900 text-white",
-  PLO: "bg-blue-700 text-white",
-  MIX: "bg-blue-500 text-white",
+  NLH: "bg-blue-700 text-white",
+  PLO: "bg-purple-600 text-white",
+  MIX: "bg-amber-500 text-white",
   SAT: "bg-blue-100 text-blue-900",
 };
 
@@ -53,24 +53,73 @@ function formatBlinds(sb: number, bb: number): string {
   return `${formatNumber(sb)}/${formatNumber(bb)}`;
 }
 
-function StructureTable({ structure }: { structure: Structure }) {
+function getLimitedLevels(levels: Level[]): Level[] {
+  const result: Level[] = [];
+  let levelCount = 0;
+  for (const lv of levels) {
+    if (lv.break) {
+      result.push(lv);
+      continue;
+    }
+    if (levelCount >= 20) break;
+    result.push(lv);
+    levelCount++;
+  }
+  return result;
+}
+
+function calcBBAtLevel(
+  structure: Structure,
+  startingChips: number | null
+): number | null {
+  if (
+    startingChips == null ||
+    structure.lateRegCloseAfterLevel == null
+  )
+    return null;
+
+  const regLevel = structure.levels.find(
+    (lv) => !lv.break && lv.level === structure.lateRegCloseAfterLevel
+  );
+  if (!regLevel || !regLevel.bb || regLevel.bb === 0) return null;
+
+  return Math.floor(startingChips / regLevel.bb);
+}
+
+function StructureTable({
+  structure,
+  startingChips,
+}: {
+  structure: Structure;
+  startingChips: number | null;
+}) {
   const hasAnte = structure.columns.includes("BB Ante");
+  const displayLevels = getLimitedLevels(structure.levels);
+  const bbCount = calcBBAtLevel(structure, startingChips);
 
   return (
     <div className="overflow-x-auto -mx-1">
       <table className="w-full text-[10px]">
         <thead>
           <tr className="border-b border-border-default">
-            <th className="text-left py-1 px-1 font-medium text-text-muted">Lv</th>
-            <th className="text-left py-1 px-1 font-medium text-text-muted">Blinds</th>
+            <th className="text-left py-1 px-1 font-medium text-text-muted">
+              Lv
+            </th>
+            <th className="text-left py-1 px-1 font-medium text-text-muted">
+              Blinds
+            </th>
             {hasAnte && (
-              <th className="text-right py-1 px-1 font-medium text-text-muted">Ante</th>
+              <th className="text-right py-1 px-1 font-medium text-text-muted">
+                Ante
+              </th>
             )}
-            <th className="text-right py-1 px-1 font-medium text-text-muted">Min</th>
+            <th className="text-right py-1 px-1 font-medium text-text-muted">
+              Min
+            </th>
           </tr>
         </thead>
         <tbody>
-          {structure.levels.map((lv, i) => {
+          {displayLevels.map((lv, i) => {
             if (lv.break) {
               return (
                 <tr key={`break-${i}`} className="bg-bg-tertiary">
@@ -101,11 +150,15 @@ function StructureTable({ structure }: { structure: Structure }) {
               >
                 <td className="py-1 px-1 text-text-secondary">
                   {lv.level}
-                  {isLateRegClose && (
-                    <span className="ml-1 text-[8px] text-blue-700 font-bold">REG</span>
+                  {isLateRegClose && bbCount != null && (
+                    <span className="ml-1 text-[8px] text-blue-700 font-bold">
+                      REG {bbCount}BB
+                    </span>
                   )}
                   {isDay2End && (
-                    <span className="ml-1 text-[8px] text-blue-900 font-bold">D2</span>
+                    <span className="ml-1 text-[8px] text-blue-900 font-bold">
+                      D2
+                    </span>
                   )}
                 </td>
                 <td className="py-1 px-1 text-text-primary font-medium">
@@ -128,48 +181,11 @@ function StructureTable({ structure }: { structure: Structure }) {
   );
 }
 
-function RulesSection({ event }: { event: EventData }) {
-  const rules: { label: string; value: string }[] = [];
-
-  if (event.reentry) {
-    rules.push({ label: "Re-entry", value: event.reentry });
-  }
-  if (event.lateRegLevel != null) {
-    rules.push({
-      label: "Late Reg",
-      value: `Closes after Level ${event.lateRegLevel}`,
-    });
-  }
-  if (event.day2Condition) {
-    rules.push({ label: "Day 2", value: event.day2Condition });
-  }
-  if (event.ruleNotes) {
-    rules.push({ label: "Notes", value: event.ruleNotes });
-  }
-
-  if (rules.length === 0) return null;
-
-  return (
-    <div className="space-y-1.5">
-      <p className="text-[10px] font-bold tracking-[1px] text-blue-900 uppercase">
-        Rules
-      </p>
-      {rules.map((r) => (
-        <div key={r.label} className="flex justify-between text-xs">
-          <span className="text-text-muted">{r.label}</span>
-          <span className="text-text-primary font-medium text-right max-w-[60%]">
-            {r.value}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function EventCard({ event }: { event: EventData }) {
   const [open, setOpen] = useState(false);
 
-  const badgeStyle = BADGE_STYLES[event.gameType] || "bg-blue-100 text-blue-900";
+  const badgeStyle =
+    BADGE_STYLES[event.gameType] || "bg-blue-100 text-blue-900";
 
   const borderColor = event.isMainEvent
     ? "border-l-blue-700"
@@ -188,10 +204,7 @@ export default function EventCard({ event }: { event: EventData }) {
       className={`border border-border-default rounded-lg overflow-hidden border-l-[3px] ${borderColor} ${bgColor}`}
     >
       {/* Collapsed summary */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full text-left p-3"
-      >
+      <button onClick={() => setOpen(!open)} className="w-full text-left p-3">
         {/* Row 1: Event number + badges */}
         <div className="flex items-center gap-1.5 mb-1">
           <span className="text-[10px] text-text-muted font-medium">
@@ -268,12 +281,22 @@ export default function EventCard({ event }: { event: EventData }) {
               <p className="text-[10px] font-bold tracking-[1px] text-blue-900 uppercase mb-2">
                 Structure
               </p>
-              <StructureTable structure={event.structure} />
+              <StructureTable
+                structure={event.structure}
+                startingChips={event.startingChips}
+              />
             </div>
           )}
 
-          {/* Rules section */}
-          <RulesSection event={event} />
+          {/* Notes section — ruleNotes only */}
+          {event.ruleNotes && (
+            <div>
+              <p className="text-[10px] font-bold tracking-[1px] text-blue-900 uppercase mb-1">
+                Notes
+              </p>
+              <p className="text-xs text-text-secondary">{event.ruleNotes}</p>
+            </div>
+          )}
 
           {/* Close button */}
           <button
