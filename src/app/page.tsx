@@ -1,6 +1,7 @@
 import HeroBanner from "@/components/HeroBanner";
+import PromoCarousel from "@/components/PromoCarousel";
+import VenueAccess from "@/components/VenueAccess";
 import YouTubeLink from "@/components/YouTubeLink";
-import SponsorGrid from "@/components/SponsorGrid";
 import FollowButtons from "@/components/FollowButtons";
 
 export default function HomePage() {
@@ -8,8 +9,9 @@ export default function HomePage() {
     <div>
       <HeroBanner />
       <div className="px-4 py-6 space-y-6">
+        <PromoCarousel />
+        <VenueAccess />
         <YouTubeLink />
-        <SponsorGrid />
         <FollowButtons />
       </div>
     </div>

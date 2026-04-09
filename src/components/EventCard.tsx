@@ -2,54 +2,218 @@
 
 import { useState } from "react";
 
-interface Event {
-  id: string;
-  name: string;
-  startTime: string;
-  closeTime: string | null;
-  chips: number | null;
-  entry: string;
-  isMainEvent: boolean;
-  isSatellite: boolean;
+interface Level {
+  level?: number;
+  sb?: number;
+  bb?: number;
+  ante?: number;
+  time: number;
+  break?: boolean;
 }
 
-export default function EventCard({ event }: { event: Event }) {
+interface Structure {
+  columns: string[];
+  lateRegCloseAfterLevel: number | null;
+  day2EndLevel: number | null;
+  levels: Level[];
+}
+
+interface EventData {
+  eventNumber: string;
+  name: string;
+  gameType: string;
+  startTime: string;
+  lateRegClose: string | null;
+  lateRegLevel: number | null;
+  startingChips: number | null;
+  buyIn: number | null;
+  buyInDisplay: string | null;
+  gtd: number | null;
+  gtdDisplay: string | null;
+  isMainEvent: boolean;
+  isSatellite: boolean;
+  reentry: string;
+  day2Condition: string | null;
+  ruleNotes: string | null;
+  structure: Structure | null;
+}
+
+const BADGE_STYLES: Record<string, string> = {
+  NLH: "bg-blue-900 text-white",
+  PLO: "bg-blue-700 text-white",
+  MIX: "bg-blue-500 text-white",
+  SAT: "bg-blue-100 text-blue-900",
+};
+
+function formatNumber(n: number): string {
+  return n.toLocaleString("en-US");
+}
+
+function formatBlinds(sb: number, bb: number): string {
+  return `${formatNumber(sb)}/${formatNumber(bb)}`;
+}
+
+function StructureTable({ structure }: { structure: Structure }) {
+  const hasAnte = structure.columns.includes("BB Ante");
+
+  return (
+    <div className="overflow-x-auto -mx-1">
+      <table className="w-full text-[10px]">
+        <thead>
+          <tr className="border-b border-border-default">
+            <th className="text-left py-1 px-1 font-medium text-text-muted">Lv</th>
+            <th className="text-left py-1 px-1 font-medium text-text-muted">Blinds</th>
+            {hasAnte && (
+              <th className="text-right py-1 px-1 font-medium text-text-muted">Ante</th>
+            )}
+            <th className="text-right py-1 px-1 font-medium text-text-muted">Min</th>
+          </tr>
+        </thead>
+        <tbody>
+          {structure.levels.map((lv, i) => {
+            if (lv.break) {
+              return (
+                <tr key={`break-${i}`} className="bg-bg-tertiary">
+                  <td
+                    colSpan={hasAnte ? 4 : 3}
+                    className="text-center py-1 px-1 text-text-muted italic"
+                  >
+                    Break — {lv.time} min
+                  </td>
+                </tr>
+              );
+            }
+
+            const isLateRegClose =
+              structure.lateRegCloseAfterLevel != null &&
+              lv.level === structure.lateRegCloseAfterLevel;
+
+            const isDay2End =
+              structure.day2EndLevel != null &&
+              lv.level === structure.day2EndLevel;
+
+            return (
+              <tr
+                key={`lv-${lv.level}-${i}`}
+                className={`border-b border-border-light ${
+                  isLateRegClose ? "bg-blue-50" : ""
+                }`}
+              >
+                <td className="py-1 px-1 text-text-secondary">
+                  {lv.level}
+                  {isLateRegClose && (
+                    <span className="ml-1 text-[8px] text-blue-700 font-bold">REG</span>
+                  )}
+                  {isDay2End && (
+                    <span className="ml-1 text-[8px] text-blue-900 font-bold">D2</span>
+                  )}
+                </td>
+                <td className="py-1 px-1 text-text-primary font-medium">
+                  {formatBlinds(lv.sb!, lv.bb!)}
+                </td>
+                {hasAnte && (
+                  <td className="py-1 px-1 text-right text-text-secondary">
+                    {formatNumber(lv.ante!)}
+                  </td>
+                )}
+                <td className="py-1 px-1 text-right text-text-secondary">
+                  {lv.time}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RulesSection({ event }: { event: EventData }) {
+  const rules: { label: string; value: string }[] = [];
+
+  if (event.reentry) {
+    rules.push({ label: "Re-entry", value: event.reentry });
+  }
+  if (event.lateRegLevel != null) {
+    rules.push({
+      label: "Late Reg",
+      value: `Closes after Level ${event.lateRegLevel}`,
+    });
+  }
+  if (event.day2Condition) {
+    rules.push({ label: "Day 2", value: event.day2Condition });
+  }
+  if (event.ruleNotes) {
+    rules.push({ label: "Notes", value: event.ruleNotes });
+  }
+
+  if (rules.length === 0) return null;
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[10px] font-bold tracking-[1px] text-blue-900 uppercase">
+        Rules
+      </p>
+      {rules.map((r) => (
+        <div key={r.label} className="flex justify-between text-xs">
+          <span className="text-text-muted">{r.label}</span>
+          <span className="text-text-primary font-medium text-right max-w-[60%]">
+            {r.value}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function EventCard({ event }: { event: EventData }) {
   const [open, setOpen] = useState(false);
+
+  const badgeStyle = BADGE_STYLES[event.gameType] || "bg-blue-100 text-blue-900";
 
   const borderColor = event.isMainEvent
     ? "border-l-blue-700"
-    : "border-l-blue-100";
+    : event.isSatellite
+    ? "border-l-blue-100"
+    : "border-l-blue-500";
 
   const bgColor = event.isMainEvent ? "bg-blue-50" : "bg-white";
+
+  const displayBuyIn = event.buyInDisplay
+    ? event.buyInDisplay.replace(/Â¥/g, "¥")
+    : null;
 
   return (
     <div
       className={`border border-border-default rounded-lg overflow-hidden border-l-[3px] ${borderColor} ${bgColor}`}
     >
+      {/* Collapsed summary */}
       <button
         onClick={() => setOpen(!open)}
         className="w-full text-left p-3"
       >
-        {event.isMainEvent && (
-          <span className="inline-block bg-blue-700 text-white text-[9px] font-bold px-2 py-0.5 rounded mb-1.5 uppercase tracking-wider">
-            MAIN EVENT
+        {/* Row 1: Event number + badges */}
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[10px] text-text-muted font-medium">
+            {event.eventNumber}
           </span>
-        )}
-        {event.isSatellite && (
-          <span className="inline-block bg-blue-100 text-blue-900 text-[9px] font-bold px-2 py-0.5 rounded mb-1.5 uppercase tracking-wider">
-            SATELLITE
+          <span
+            className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeStyle}`}
+          >
+            {event.gameType}
           </span>
-        )}
+          {event.isMainEvent && (
+            <span className="inline-block bg-blue-700 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+              MAIN EVENT
+            </span>
+          )}
+        </div>
 
+        {/* Row 2: Event name + chevron */}
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-[10px] text-text-muted mb-0.5">
-              #{event.id}
-            </p>
-            <p className="text-sm font-medium text-text-primary leading-tight truncate">
-              {event.name}
-            </p>
-          </div>
+          <p className="text-sm font-medium text-text-primary leading-tight">
+            {event.name}
+          </p>
           <svg
             width="16"
             height="16"
@@ -57,63 +221,73 @@ export default function EventCard({ event }: { event: Event }) {
             fill="none"
             stroke="#888"
             strokeWidth="2"
-            className={`shrink-0 mt-1 transition-transform ${open ? "rotate-180" : ""}`}
+            className={`shrink-0 mt-0.5 transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
           >
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </div>
 
-        <div className="flex items-center gap-3 mt-2 text-xs text-text-secondary">
-          <span>
-            {event.startTime}
-            {event.closeTime ? ` – ${event.closeTime}` : ""}
-          </span>
-          {event.chips && (
+        {/* Row 3: Time + chips */}
+        <div className="flex items-center gap-3 mt-1.5 text-xs text-text-secondary">
+          <span>Start {event.startTime}</span>
+          {event.lateRegClose && (
             <span className="text-text-muted">
-              {event.chips.toLocaleString()} chips
+              Late Reg {event.lateRegClose}
+            </span>
+          )}
+          {event.startingChips && (
+            <span className="text-text-muted">
+              {formatNumber(event.startingChips)} chips
             </span>
           )}
         </div>
 
-        <p className="text-xs text-blue-900 font-medium mt-1">
-          {event.entry}
-        </p>
+        {/* Row 4: Buy-in + GTD */}
+        <div className="flex items-center gap-3 mt-1">
+          {displayBuyIn && (
+            <span className="text-xs text-blue-900 font-medium">
+              {displayBuyIn}
+            </span>
+          )}
+          {event.gtdDisplay && (
+            <span className="text-[10px] text-blue-700 font-medium">
+              GTD {event.gtdDisplay}
+            </span>
+          )}
+        </div>
       </button>
 
+      {/* Expanded accordion */}
       {open && (
-        <div className="border-t border-border-default px-3 py-3 bg-bg-secondary">
-          <p className="text-[10px] font-bold tracking-[1px] text-blue-900 uppercase mb-2">
-            INFO
-          </p>
-          <div className="space-y-1 text-xs text-text-secondary">
-            <div className="flex justify-between">
-              <span>Entry</span>
-              <span className="font-medium text-text-primary">{event.entry}</span>
+        <div className="border-t border-border-default px-3 py-3 bg-bg-secondary space-y-4">
+          {/* Structure section */}
+          {event.structure && (
+            <div>
+              <p className="text-[10px] font-bold tracking-[1px] text-blue-900 uppercase mb-2">
+                Structure
+              </p>
+              <StructureTable structure={event.structure} />
             </div>
-            {event.chips && (
-              <div className="flex justify-between">
-                <span>Chips</span>
-                <span className="font-medium text-text-primary">
-                  {event.chips.toLocaleString()}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span>Start</span>
-              <span className="font-medium text-text-primary">{event.startTime}</span>
-            </div>
-            {event.closeTime && (
-              <div className="flex justify-between">
-                <span>Reg Close</span>
-                <span className="font-medium text-text-primary">{event.closeTime}</span>
-              </div>
-            )}
-          </div>
+          )}
+
+          {/* Rules section */}
+          <RulesSection event={event} />
+
+          {/* Close button */}
           <button
             onClick={() => setOpen(false)}
-            className="mt-3 text-[10px] text-text-muted flex items-center gap-1 mx-auto"
+            className="text-[10px] text-text-muted flex items-center gap-1 mx-auto pt-1"
           >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <polyline points="18 15 12 9 6 15" />
             </svg>
             タップで閉じる

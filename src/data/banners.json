@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "image": "/banners/main-event.webp",
+    "alt": "JOPT 2026 Grand Final - Main Event",
+    "url": "/schedule",
+    "active": true
+  },
+  {
+    "id": 2,
+    "image": "/banners/schedule.webp",
+    "alt": "Full Schedule - 220+ Events",
+    "url": "/schedule",
+    "active": true
+  },
+  {
+    "id": 3,
+    "image": "/banners/gallery.webp",
+    "alt": "Photo Gallery",
+    "url": "/gallery",
+    "active": true
+  }
+]

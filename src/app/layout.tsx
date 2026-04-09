@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Serif_JP } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import BottomNav from "@/components/BottomNav";
-import LineOverlay from "@/components/LineOverlay";
+import LayoutShell from "@/components/LayoutShell";
 
 const notoSerifJP = Noto_Serif_JP({
   subsets: ["latin"],
@@ -38,10 +36,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className={notoSerifJP.className}>
       <body>
-        <LineOverlay />
-        <Header />
-        <main className="flex-1 pb-16">{children}</main>
-        <BottomNav />
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );
