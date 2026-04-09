@@ -1,0 +1,51 @@
+[
+  {
+    "eventName": "2026 Osaka #01",
+    "period": "2026.03.18 – 03.22",
+    "stuffAlbumId": "72177720332300800",
+    "companionAlbumId": "TODO",
+    "isLatest": true
+  },
+  {
+    "eventName": "2026 Sapporo #01",
+    "period": "2026.02.20 – 02.23",
+    "stuffAlbumId": "72177720332049750",
+    "companionAlbumId": "TODO"
+  },
+  {
+    "eventName": "2026 Tokyo #01",
+    "period": "2025.12.27 – 2026.01.04",
+    "stuffAlbumId": "72177720331126907",
+    "companionAlbumId": "TODO"
+  },
+  {
+    "eventName": "2025 Osaka #02",
+    "period": "2025.10.30 – 11.03",
+    "stuffAlbumId": "TODO",
+    "companionAlbumId": "TODO"
+  },
+  {
+    "eventName": "2025 Tokyo #03",
+    "period": "2025.10.09 – 10.13",
+    "stuffAlbumId": "TODO",
+    "companionAlbumId": "TODO"
+  },
+  {
+    "eventName": "2025 Sapporo #02",
+    "period": "2025.09.12 – 09.15",
+    "stuffAlbumId": "TODO",
+    "companionAlbumId": "TODO"
+  },
+  {
+    "eventName": "2025 Tokyo #02",
+    "period": "2025.07.17 – 07.21",
+    "stuffAlbumId": "TODO",
+    "companionAlbumId": "TODO"
+  },
+  {
+    "eventName": "2025 Grand Final",
+    "period": "2025.04.25 – 05.06",
+    "stuffAlbumId": "TODO",
+    "companionAlbumId": "TODO"
+  }
+]
