@@ -4,6 +4,7 @@
     "period": "2026.03.18 – 03.22",
     "stuffAlbumId": "72177720332300800",
     "companionAlbumId": "72177720332323068",
+    "imageAlbumId": "72177720332323068",
     "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720332323068",
     "thumbnailUrl": "https://live.staticflickr.com/65535/55153288532_5d80e63cab_z.jpg",
     "isLatest": true
@@ -13,6 +14,7 @@
     "period": "2026.02.20 – 02.23",
     "stuffAlbumId": "72177720332049750",
     "companionAlbumId": "72177720332055861",
+    "imageAlbumId": "72177720332055861",
     "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720332055861",
     "thumbnailUrl": "https://live.staticflickr.com/65535/55106409899_f506d5c691_z.jpg",
     "isLatest": false
@@ -22,6 +24,7 @@
     "period": "2025.12.27 – 2026.01.04",
     "stuffAlbumId": "72177720331126907",
     "companionAlbumId": "72177720331151914",
+    "imageAlbumId": "72177720331151914",
     "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720331151914",
     "thumbnailUrl": "https://live.staticflickr.com/65535/55007899639_669154e1d1_z.jpg",
     "isLatest": false
@@ -31,7 +34,8 @@
     "period": "2025.10.30 – 11.03",
     "stuffAlbumId": "72177720329717101",
     "companionAlbumId": "72177720329723967",
-    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720329723967",
+    "imageAlbumId": "72177720329746729",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720329746729",
     "thumbnailUrl": "https://live.staticflickr.com/65535/54899555019_4a47b33c1d_z.jpg",
     "isLatest": false
   },
@@ -40,7 +44,8 @@
     "period": "2025.10.09 – 10.13",
     "stuffAlbumId": "72177720329458323",
     "companionAlbumId": "72177720329436455",
-    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720329436455",
+    "imageAlbumId": "72177720329436525",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720329436525",
     "thumbnailUrl": "https://live.staticflickr.com/65535/54842635963_dc62f7e988_z.jpg",
     "isLatest": false
   },
@@ -49,7 +54,8 @@
     "period": "2025.09.12 – 09.15",
     "stuffAlbumId": "72177720328521531",
     "companionAlbumId": "72177720328521541",
-    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720328521541",
+    "imageAlbumId": "72177720328521601",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720328521601",
     "thumbnailUrl": "https://live.staticflickr.com/65535/54783122691_45a5806b0d_z.jpg",
     "isLatest": false
   },
@@ -58,7 +64,8 @@
     "period": "2025.07.17 – 07.21",
     "stuffAlbumId": "72177720327235211",
     "companionAlbumId": "72177720327261869",
-    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720327261869",
+    "imageAlbumId": "72177720327261949",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720327261949",
     "thumbnailUrl": "https://live.staticflickr.com/65535/54660211521_7daf7fe3e1_z.jpg",
     "isLatest": false
   },
@@ -67,7 +74,8 @@
     "period": "2025.04.25 – 05.06",
     "stuffAlbumId": "72177720325165437",
     "companionAlbumId": "72177720325165447",
-    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720325165447",
+    "imageAlbumId": "72177720325165467",
+    "flickrLink": "https://www.flickr.com/photos/190979093@N07/albums/72177720325165467",
     "thumbnailUrl": "https://live.staticflickr.com/65535/54477330313_934955232d_z.jpg",
     "isLatest": false
   }

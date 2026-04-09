@@ -1,20 +1,10 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import rawData from "@/data/jopt_gf2026_data.json";
 import EventCard from "@/components/EventCard";
-
-type GameFilter = "All" | "NLH" | "PLO" | "MIX" | "SAT";
-
-const FILTERS: GameFilter[] = ["All", "NLH", "PLO", "MIX", "SAT"];
-
-const FILTER_ACTIVE_STYLES: Record<GameFilter, string> = {
-  All: "bg-blue-900 text-white border-blue-900",
-  NLH: "bg-blue-700 text-white border-blue-700",
-  PLO: "bg-purple-600 text-white border-purple-600",
-  MIX: "bg-amber-500 text-white border-amber-500",
-  SAT: "bg-blue-100 text-blue-900 border-blue-100",
-};
+import { useEventFilter } from "@/hooks/useEventFilter";
+import EventFilter from "@/components/EventFilter";
 
 // Regroup events: 00:00-08:59 start times belong to previous day
 interface EventItem {
@@ -116,7 +106,6 @@ function getDefaultDayIndex(): number {
 
 export default function SchedulePage() {
   const [selectedIdx, setSelectedIdx] = useState(getDefaultDayIndex);
-  const [filter, setFilter] = useState<GameFilter>("All");
   const tabsRef = useRef<HTMLDivElement>(null);
 
   const day = dayGroups[selectedIdx];
@@ -132,13 +121,9 @@ export default function SchedulePage() {
     });
   }, [selectedIdx]);
 
-  const filteredEvents = useMemo(() => {
-    if (filter === "All") return day.events;
-    return day.events.filter((e) => e.gameType === filter);
-  }, [day, filter]);
-
-  const totalCount = day.events.length;
-  const filteredCount = filteredEvents.length;
+  const { filteredEvents, activeFilters, setFilter, filterSummary } = useEventFilter(
+    day.events as Record<string, any>[]
+  );
 
   return (
     <div>
@@ -152,10 +137,7 @@ export default function SchedulePage() {
           return (
             <button
               key={d.date}
-              onClick={() => {
-                setSelectedIdx(i);
-                setFilter("All");
-              }}
+              onClick={() => setSelectedIdx(i)}
               className={`shrink-0 px-3 py-2.5 text-xs whitespace-nowrap transition-colors ${
                 active
                   ? "bg-blue-900 text-white font-medium"
@@ -168,37 +150,11 @@ export default function SchedulePage() {
         })}
       </div>
 
-      {/* Game type filter */}
-      <div className="flex gap-1.5 px-4 pt-3 pb-1 overflow-x-auto hide-scrollbar">
-        {FILTERS.map((f) => {
-          const active = f === filter;
-          const activeStyle = FILTER_ACTIVE_STYLES[f];
-          return (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`shrink-0 px-3 py-1.5 text-[11px] font-medium rounded-full border transition-colors ${
-                active
-                  ? activeStyle
-                  : "bg-white text-text-secondary border-border-default hover:bg-bg-secondary"
-              }`}
-            >
-              {f}
-            </button>
-          );
-        })}
-      </div>
+      {/* Config-driven filter */}
+      <EventFilter activeFilters={activeFilters} onFilterChange={setFilter} />
 
       {/* Event count */}
-      <div className="px-4 py-2 text-xs text-text-muted">
-        {filter === "All" ? (
-          <span>{totalCount} events</span>
-        ) : (
-          <span>
-            Filtered: {filter} — {filteredCount} events
-          </span>
-        )}
-      </div>
+      <div className="px-4 py-2 text-xs text-text-muted">{filterSummary}</div>
 
       {/* Event list */}
       <div className="px-4 pb-6 space-y-3">
