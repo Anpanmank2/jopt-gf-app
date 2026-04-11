@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function ContentsPage() {
   return (
-    <div className="fixed left-1/2 -translate-x-1/2 top-[67px] bottom-[57px] w-full max-w-[430px] z-0 bg-bg-primary">
+    <div className="fixed left-1/2 -translate-x-1/2 top-0 bottom-[57px] w-full max-w-[430px] z-0 bg-bg-primary">
       <iframe
         src={GTO_URL}
         title="GTO Challenge"
