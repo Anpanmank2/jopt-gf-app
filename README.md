@@ -23,7 +23,7 @@ JOPT 2026 Grand Final（4/24〜5/6, ベルサール高田馬場）の来場者�
 
 #### 画面構成（5タブ）
 
-BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CONTENTS
+BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
 
 | # | 画面 | パス | 状態 | 説明 |
 |---|------|------|------|------|
@@ -31,9 +31,10 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CONTENTS
 | 2 | SCHEDULE | `/schedule` | ✅ 実装済 | 日付タブ + Players Guide、Game × Stake フィルタ、拡張トーナメントカード |
 | 3 | RANKING | `/ranking` | 🔲 COMING SOON | GF期間中のポイント集計・ランキング表示（予定） |
 | 4 | GALLERY | `/gallery` | ✅ 実装済 | Flickrサムネイル付きアルバムカード（Staff / Companion 両方へ直リンク） |
-| 5 | CONTENTS | `/contents` | 🔲 COMING SOON | ポーカーゲーム・クイズ系コンテンツ（予定） |
+| 5 | CHALLENGE | `/contents` | ✅ 実装済 | **GTO Challenge** iframe 埋込（3分間タイムアタック型ポーカーGTOクイズ） |
 
-※ 旧 `/shindan`（診断）タブは 2026-04-09 の UI刷新で廃止。診断機能は CONTENTS タブ配下で再設計予定。
+※ 旧 `/shindan`（診断）タブは 2026-04-09 の UI刷新で廃止。
+※ `/contents` のルートは維持したまま表示ラベルのみ `CHALLENGE` にリネーム（2026-04-11）。
 
 #### HOME（`/`）
 - **ヒーロー**: 背景画像（`public/images/hero-bg.jpg`）+ 日程 / タイトル / 会場名
@@ -60,9 +61,13 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CONTENTS
 - COMING SOONプレースホルダー表示中
 - 将来: GF期間中のポイント集計・リーダーボード表示
 
-#### CONTENTS（`/contents`）— 未実装
-- COMING SOONプレースホルダー表示中
-- 将来: ポーカーゲーム、クイズ、適性診断等のインタラクティブコンテンツ
+#### CHALLENGE（`/contents`）
+- **GTO Challenge** を iframe で全画面埋込（本番URL: https://gto-challenge.vercel.app）
+- 3分間タイムアタック型ポーカーGTOクイズ。あなたのポーカーIQを証明せよ
+- iframe URL は `NEXT_PUBLIC_GTO_URL` 環境変数で切替可能（デフォルト: `https://gto-challenge.vercel.app`）
+- レイアウト: `fixed` 位置決め、Header (top=67px) と BottomNav (bottom=57px) の間に正確にフィット
+- GTO Challenge 側の登録は8桁 gameID + ニックネーム（メール認証なし、軽量）
+- タブ名は `CHALLENGE`（★星アイコン）、ルートは `/contents` のまま
 
 #### GALLERY（`/gallery`）
 - **Flickrサムネイル付きアルバムカード**: 各イベントのカバー画像をFlickr CDN (`live.staticflickr.com`) から直取得
@@ -155,6 +160,7 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CONTENTS
 | LINE | https://lin.ee/8kCSr85 |
 | Flickr アルバム一覧 | https://www.flickr.com/photos/190979093@N07/albums/ |
 | JOPT公式サイト | https://japanopenpoker.com/ |
+| GTO Challenge (`/contents` で iframe 埋込) | https://gto-challenge.vercel.app |
 
 ---
 
@@ -179,7 +185,7 @@ jopt-gf-app/
 │   │   ├── schedule/page.tsx # SCHEDULE (/schedule) — クライアントコンポーネント
 │   │   ├── ranking/page.tsx  # RANKING COMING SOON (/ranking)
 │   │   ├── gallery/page.tsx  # GALLERY (/gallery)
-│   │   └── contents/page.tsx # CONTENTS COMING SOON (/contents)
+│   │   └── contents/page.tsx # CHALLENGE: GTO Challenge iframe embed (/contents)
 │   ├── components/
 │   │   ├── Header.tsx        # 固定ヘッダー
 │   │   ├── LayoutShell.tsx   # ルートレイアウトシェル
@@ -259,7 +265,7 @@ jopt-gf-app/
 |-------------|------|------|
 | `Header` | Server | 固定ヘッダー。「JOPT」ロゴ + 「GRAND FINAL 2026」サブテキスト |
 | `LayoutShell` | Client | ルートレイアウトシェル（Header + BottomNav + LineOverlay統合） |
-| `BottomNav` | Client | 5タブナビ（HOME/SCHEDULE/RANKING/GALLERY/CONTENTS）。`usePathname()`でアクティブ判定 |
+| `BottomNav` | Client | 5タブナビ（HOME/SCHEDULE/RANKING/GALLERY/CHALLENGE）。`usePathname()`でアクティブ判定 |
 | `HeroBanner` | Server | 背景画像付きヒーロー。日程、タイトル、会場名、タグライン |
 | `YouTubeLink` | Client | YouTube埋込プレイヤー（iframe） |
 | `PromoCarousel` | Client | HOMEプロモーションバナーのスワイプカルーセル。`banners.json`駆動 |
@@ -277,7 +283,7 @@ jopt-gf-app/
 | `/schedule` | SSG + Client hydration | 日付タブ選択・フィルタ・カード展開にClient状態必要 |
 | `/ranking` | SSG | 静的プレースホルダー（COMING SOON） |
 | `/gallery` | SSG | JSONデータのみ |
-| `/contents` | SSG | 静的プレースホルダー（COMING SOON） |
+| `/contents` | SSG | GTO Challenge iframe のみ（動的要素なし） |
 
 ---
 
@@ -310,11 +316,11 @@ npx vercel --prod --scope anpanmank2s-projects  # Vercelデプロイ
 | # | タスク | 優先度 | 説明 |
 |---|-------|-------|------|
 | 1 | RANKING ページ実装 | 高 | GF期間中のポイント集計・リーダーボード表示 |
-| 2 | CONTENTS ページ実装 | 高 | ポーカーゲーム・クイズ・診断等のインタラクティブコンテンツ |
-| 3 | Service Worker | 高 | Workboxによる静的アセットキャッシュ、オフライン表示 |
-| 4 | バージョン更新通知 | 中 | SW更新検知時に「新しいバージョンがあります / 更新する」モーダル |
-| 5 | PWAアイコン差し替え | 低 | 現在はプレースホルダー。JOPTロゴの192/512pxアイコンに差し替え |
-| 6 | JOPTロゴ配置 | 低 | ヘッダーに `japanopenpoker.com` のロゴ画像を表示 |
+| 2 | Service Worker | 高 | Workboxによる静的アセットキャッシュ、オフライン表示 |
+| 3 | バージョン更新通知 | 中 | SW更新検知時に「新しいバージョンがあります / 更新する」モーダル |
+| 4 | PWAアイコン差し替え | 低 | 現在はプレースホルダー。JOPTロゴの192/512pxアイコンに差し替え |
+| 5 | JOPTロゴ配置 | 低 | ヘッダーに `japanopenpoker.com` のロゴ画像を表示 |
+| 6 | CHALLENGE iframe の履歴管理 | 低 | iframe 内遷移がブラウザ戻るで親 history を汚染する問題（iOS Safari 現象）対応 |
 
 ---
 
@@ -338,3 +344,4 @@ npx vercel --prod --scope anpanmank2s-projects  # Vercelデプロイ
 ### 5.3 インシデント履歴
 
 - **2026-04-09 〜 2026-04-11**: `feature/ui-update` に 9コミット（UI全面刷新）を積んだまま main マージ・push を失念。本番が旧4タブ構成のまま2日間放置。README 仕様表も旧構造のまま乖離。→ 2026-04-11 に秘書が検出・同期復旧。以降は本セクションの Push Gate 手順を必須化。
+- **2026-04-11**: `/contents` に [GTO Challenge](https://gto-challenge.vercel.app) を iframe 埋込、タブ名を `CONTENTS` → `CHALLENGE` にリネーム。iframe は `<div>` wrapper に `position: fixed` で `top: 67px; bottom: 57px` 指定（`<iframe>` 単独では intrinsic 150px 高さ問題が発生）。PM 山本 Playwright 検証で重複ゼロ・全チェック PASS を確認。
