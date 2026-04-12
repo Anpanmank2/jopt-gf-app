@@ -26,6 +26,12 @@ interface EventItem {
   day2Condition: string | null;
   ruleNotes: string | null;
   structure: unknown;
+  prize: unknown;
+  feeDetail: string | null;
+  games: string[] | null;
+  bounty: string | null;
+  notes: string[] | null;
+  award: unknown;
 }
 
 interface DayGroup {
@@ -127,25 +133,45 @@ export default function SchedulePage() {
 
   return (
     <div>
-      {/* Date tabs — sticky below header */}
+      {/* Calendar strip — sticky below header */}
       <div
         ref={tabsRef}
-        className="flex overflow-x-auto hide-scrollbar bg-bg-secondary border-b border-border-default sticky top-[52px] z-40"
+        className="flex items-stretch overflow-x-auto hide-scrollbar bg-bg-secondary border-b border-border-default sticky top-[52px] z-40"
       >
         {dayGroups.map((d, i) => {
           const active = i === selectedIdx;
+          const date = new Date(d.date + "T00:00:00");
+          const dayNum = date.getDate();
+          const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+          const month = date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+
+          // Show month label before the first day of each month
+          const prevDate = i > 0 ? new Date(dayGroups[i - 1].date + "T00:00:00") : null;
+          const showMonthLabel = i === 0 || (prevDate && prevDate.getMonth() !== date.getMonth());
+
           return (
-            <button
-              key={d.date}
-              onClick={() => setSelectedIdx(i)}
-              className={`shrink-0 px-3 py-2.5 text-xs whitespace-nowrap transition-colors ${
-                active
-                  ? "bg-blue-900 text-white font-medium"
-                  : "text-text-muted hover:bg-bg-tertiary"
-              }`}
-            >
-              {d.dayLabel}
-            </button>
+            <div key={d.date} className="flex items-stretch shrink-0">
+              {showMonthLabel && (
+                <div className="flex items-center px-2 bg-blue-900/10">
+                  <span className="text-[9px] font-bold text-blue-900 tracking-wider">
+                    {month}
+                  </span>
+                </div>
+              )}
+              <button
+                onClick={() => setSelectedIdx(i)}
+                className={`shrink-0 flex flex-col items-center justify-center px-3 py-1.5 min-w-[44px] transition-colors ${
+                  active
+                    ? "bg-blue-900 text-white"
+                    : "text-text-muted hover:bg-bg-tertiary"
+                }`}
+              >
+                <span className="text-sm font-semibold leading-tight">{dayNum}</span>
+                <span className={`text-[9px] leading-tight ${active ? "text-blue-200" : "text-text-muted"}`}>
+                  {weekday}
+                </span>
+              </button>
+            </div>
           );
         })}
       </div>
