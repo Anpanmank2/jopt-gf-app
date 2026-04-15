@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Serif_JP } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import LayoutShell from "@/components/LayoutShell";
 
-const notoSerifJP = Noto_Serif_JP({
+const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={notoSerifJP.className}>
+    <html lang="ja" className={notoSansJP.className}>
       <body>
         <LayoutShell>{children}</LayoutShell>
       </body>
