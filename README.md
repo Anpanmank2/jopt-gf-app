@@ -2,8 +2,10 @@
 
 JOPT 2026 Grand Final（4/24〜5/6, ベルサール高田馬場）の来場者向けイベントコンパニオンPWA。
 
-- **本番URL**: https://jopt-gf-app.vercel.app
+- **本番URL**: https://jopt-gf-app.vercel.app （2026-09-03時点 HTTP 200）
 - **参考実装**: [I ♥ POKER](https://lovepo.netlify.app/)
+
+> 断面メモ（2026-09-03）: 対象イベント（2026-04-24〜05-06）は終了済み。最終コミットは 2026-04-15 で、以降の機能追加はありません。本 README は 2026-09-03 時点の main の実装に合わせて記述しています。
 
 ---
 
@@ -33,7 +35,7 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
 | 4 | GALLERY | `/gallery` | ✅ 実装済 | Flickrサムネイル付きアルバムカード（Staff / Companion 両方へ直リンク） |
 | 5 | CHALLENGE | `/contents` | ✅ 実装済 | **GTO Challenge** iframe 埋込（3分間タイムアタック型ポーカーGTOクイズ） |
 
-※ 旧 `/shindan`（診断）タブは 2026-04-09 の UI刷新で廃止。
+※ 旧 shindan（診断）タブは 2026-04-09 の UI刷新で廃止（ディレクトリごと削除済み）。
 ※ `/contents` のルートは維持したまま表示ラベルのみ `CHALLENGE` にリネーム（2026-04-11）。
 
 #### HOME（`/`）
@@ -51,21 +53,23 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
   - Game: All / NLH / PLO / MIX / SAT
   - Stake: All / Low (〜¥30,000) / Medium (¥30,001〜¥90,000) / High (¥90,001〜)
   - フィルタロジックは `src/hooks/useEventFilter.ts`
+- **カレンダーストリップ**: 日付タブは月ラベル（APR / MAY）付きの sticky 横スクロール帯（`src/app/schedule/page.tsx`、ヘッダー直下 top 52px に吸着）
 - **トーナメントカード**: 縦並び、タップで詳細展開
   - トーナメントID、名称、開始/終了時間、チップ数、エントリー費
+  - 展開時は **STRUCTURE / INFO の2タブ**（`src/components/EventCard.tsx`。STRUCTURE はレベル表・Reg Close 行・Day2 END 行、INFO は賞金/ルール等）
   - Main Event: 青ボーダー + 青背景 + バッジ
   - Satellite: 専用バッジ
-- **データ**: 詳細データは `src/data/jopt_gf2026_data.json`（55,000+行）を参照
+- **データ**: SCHEDULE が読むのは `src/data/jopt_gf2026_data.json` のみ（2026-09-03時点 59,731 行）
 
 #### RANKING（`/ranking`）— 未実装
 - COMING SOONプレースホルダー表示中
 - 将来: GF期間中のポイント集計・リーダーボード表示
 
 #### CHALLENGE（`/contents`）
-- **GTO Challenge** を iframe で全画面埋込（本番URL: https://gto-challenge.vercel.app）
+- **GTO Challenge** を iframe で全画面埋込（本番URL: https://gto-challenge.vercel.app・2026-09-03時点 HTTP 200）
 - 3分間タイムアタック型ポーカーGTOクイズ。あなたのポーカーIQを証明せよ
-- iframe URL は `NEXT_PUBLIC_GTO_URL` 環境変数で切替可能（デフォルト: `https://gto-challenge.vercel.app`）
-- レイアウト: `fixed` 位置決め、Header (top=67px) と BottomNav (bottom=57px) の間に正確にフィット
+- iframe URL は `NEXT_PUBLIC_GTO_URL` 環境変数で切替可能（デフォルト: https://gto-challenge.vercel.app ）
+- レイアウト: `/contents` だけ Header を非表示にし（`src/components/LayoutShell.tsx`）、iframe は fixed で top 0 〜 BottomNav 直上（bottom 57px）まで使う
 - GTO Challenge 側の登録は8桁 gameID + ニックネーム（メール認証なし、軽量）
 - タブ名は `CHALLENGE`（★星アイコン）、ルートは `/contents` のまま
 
@@ -80,17 +84,21 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
 | 項目 | 要件 |
 |------|------|
 | PWA | `manifest.json` 配置済み。ホーム画面追加対応 |
-| Service Worker | 🔲 未実装（Workboxによるオフラインキャッシュ予定） |
+| Service Worker | 🔲 未実装。`next-pwa` は依存に入っているが `next.config.ts` では未設定（2026-09-03時点） |
 | LINEブラウザ対応 | User-Agentに`Line`を含む場合、外部ブラウザ誘導オーバーレイを表示 |
 | バージョン更新通知 | 🔲 未実装（SW更新検知 → 更新モーダル表示予定） |
 | レスポンシブ | モバイルファースト 375〜430px幅。PCは430px中央寄せ |
 | パフォーマンス | 全ページ静的生成（SSG）。外部API呼び出しなし |
-| フォント | Google Fonts `Noto Serif JP`（400/500/700） |
+| フォント | Google Fonts Noto Sans JP（2026-04-15 に Noto Serif JP から変更。japanopenpoker.com に合わせた） |
+| 埋め込み制限 | `next.config.ts` が CSP `frame-ancestors` を付与（`'self'` + japanopenpoker.com とそのサブドメインのみ） |
 | ホスティング | Vercel（本番）。将来的にJOPT公式ドメインへ移行予定 |
 
 ### 1.4 データ仕様
 
-#### `schedule.json`
+#### `src/data/schedule.json`（2026-09-03時点 未使用）
+
+⚠ どのコンポーネントからも import されていません（`grep -rn "@/data/" src/` の実測ヒットは jopt_gf2026_data.json / gallery.json / banners.json の3本のみ）。SCHEDULE 画面は `src/data/jopt_gf2026_data.json` を直接読みます。以下は残っているファイルの形です。
+
 ```
 {
   "eventDates": { "start": "2026-04-24", "end": "2026-05-06" },
@@ -116,7 +124,7 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
 }
 ```
 
-#### `gallery.json`
+#### `src/data/gallery.json`（2026-09-03時点 8 イベント）
 ```
 [
   {
@@ -132,7 +140,10 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
 ]
 ```
 
-#### `banners.json`（HOMEプロモカルーセル）
+#### `src/data/banners.json`（HOMEプロモカルーセル・2026-09-03時点 3 件）
+
+⚠ 参照先の画像ディレクトリ（public 配下の banners）はリポジトリに存在しません。カルーセル画像を出すには画像の配置が必要です。
+
 ```
 [
   {
@@ -145,10 +156,10 @@ BottomNav 並び順: HOME / SCHEDULE / RANKING / GALLERY / CHALLENGE
 ]
 ```
 
-#### `jopt_gf2026_data.json`
-全トーナメントの詳細仕様（ストラクチャー、Players Guide情報等、55,000+行）。`schedule.json` を補完する大型データ。SCHEDULEページで読み込まれる。
+#### `src/data/jopt_gf2026_data.json`
+全トーナメントの詳細仕様（ストラクチャー、Players Guide情報等。2026-09-03時点 59,731 行）。**SCHEDULE 画面が実際に読む唯一のトーナメントデータ**。
 
-> ℹ️ `sponsors.json` は 2026-04-09 UI刷新で廃止。スポンサーグリッドは HOME から削除されました。
+> ℹ️ sponsors.json は 2026-04-09 UI刷新で廃止。スポンサーグリッドは HOME から削除されました。
 
 ### 1.5 外部リンク一覧
 
@@ -174,9 +185,8 @@ jopt-gf-app/
 │   ├── icons/                # PWAアイコン (192px / 512px)
 │   ├── images/
 │   │   └── hero-bg.jpg       # HOMEヒーロー背景画像
-│   ├── banners/              # プロモカルーセル用画像
-│   ├── gallery/              # Gallery 補助画像
 │   └── manifest.json         # PWA Web App Manifest
+│   # ⚠ banners/ gallery/ は 2026-09-03時点 未配置（banners.json の参照先が無い）
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx        # ルートレイアウト（LayoutShell: Header + BottomNav + LINE検知）
@@ -202,18 +212,17 @@ jopt-gf-app/
 │   │   └── filterConfig.ts   # Game / Stake フィルタ定義（設定駆動）
 │   ├── hooks/
 │   │   └── useEventFilter.ts # フィルタ適用ロジック
-│   ├── data/
-│   │   ├── schedule.json          # 日別イベント一覧（概要）
-│   │   ├── jopt_gf2026_data.json  # 全トーナメント詳細（55,000+行）
-│   │   ├── gallery.json           # Flickrアルバム 8イベント分（サムネ付き）
-│   │   └── banners.json           # プロモカルーセル用バナー定義
-│   └── styles/
+│   └── data/
+│       ├── jopt_gf2026_data.json  # 全トーナメント詳細（59,731 行）— SCHEDULE が読む唯一のデータ
+│       ├── gallery.json           # Flickrアルバム 8イベント分（サムネ付き）
+│       ├── banners.json           # プロモカルーセル用バナー定義
+│       └── schedule.json          # 旧・日別イベント一覧（未使用）
 ├── next.config.ts
 ├── package.json
 └── tsconfig.json
 ```
 
-> ⚠️ 旧構造のうち `src/app/shindan/`、`src/components/SponsorGrid.tsx`、`src/data/sponsors.json` は 2026-04-09 の UI刷新で削除されています。
+> ⚠️ 旧構造のうち shindan ページ、SponsorGrid コンポーネント、sponsors.json は 2026-04-09 の UI刷新で削除済み（いずれもリポジトリに存在しません）。
 
 ### 2.2 技術スタック
 
@@ -222,7 +231,7 @@ jopt-gf-app/
 | フレームワーク | Next.js (App Router) | 16.2.2 |
 | 言語 | TypeScript | 5.x |
 | スタイリング | Tailwind CSS | v4 (CSS-based config) |
-| フォント | Noto Serif JP (Google Fonts) | next/font 経由 |
+| フォント | Noto Sans JP (Google Fonts) | next/font 経由 |
 | PWA | manifest.json + meta tags | ネイティブ |
 | デプロイ | Vercel | Production |
 | データ | 静的JSON (src/data/) | ビルド時読み込み |
@@ -246,7 +255,7 @@ jopt-gf-app/
 | `border-default` | `#E5E5E5` | カード・区切り線 |
 
 #### タイポグラフィ
-- フォント: `Noto Serif JP` (serif)
+- フォント: Noto Sans JP (sans-serif)
 - 見出し: `font-weight: 700`
 - 本文: `font-weight: 400`
 - ラベル/強調: `font-weight: 500`
@@ -301,13 +310,13 @@ npm run dev
 
 ```bash
 npm run build    # 本番ビルド
-npx vercel --prod --scope anpanmank2s-projects  # Vercelデプロイ
+npx vercel --prod --yes    # Vercel 本番へ手動デプロイ（push だけでは反映されない）
 ```
 
 ### 3.3 データ更新
 
-トーナメント情報の変更は `src/data/schedule.json` を直接編集してください。
-フォーマットは「1.4 データ仕様」を参照。
+トーナメント情報の変更は `src/data/jopt_gf2026_data.json` を編集してください（SCHEDULE 画面が読むのはこのファイルのみ。schedule.json は未使用の旧データです）。
+ギャラリーは `src/data/gallery.json`、HOME バナーは `src/data/banners.json`。フォーマットは「1.4 データ仕様」を参照。
 
 ---
 
@@ -328,8 +337,9 @@ npx vercel --prod --scope anpanmank2s-projects  # Vercelデプロイ
 
 ### 5.1 ブランチ戦略
 
-- **`main`**: 本番デプロイ用（Vercel が自動追従）。直接 push 可だが feature branch 経由推奨
-- **`feature/<topic>`**: 機能開発用。完了したら `main` に FF merge してpush
+- **`main`**: 本番系のブランチ。直接 push 可だが feature branch 経由を推奨
+- feature/<topic>: 機能開発用。完了したら main に FF merge して push
+- ⚠ **Vercel は git push では自動デプロイされません**。本番反映は必ず `npx vercel --prod` を手動実行する
 
 ### 5.2 Push Gate（必須）
 
@@ -339,9 +349,12 @@ npx vercel --prod --scope anpanmank2s-projects  # Vercelデプロイ
 2. `npm run dev` で起動し、全5タブをブラウザで目視確認
 3. README.md の仕様セクション（`1.2 機能要件`）を **同一コミット内で更新**
 4. main に FF merge → `git push origin main`
-5. Vercel deploy 完了後、本番URLを `curl -sL https://jopt-gf-app.vercel.app` で確認
+5. `npx vercel --prod --yes` で手動デプロイ（push だけでは本番に出ない）
+6. Vercel deploy 完了後、本番URLを `curl -sL https://jopt-gf-app.vercel.app` で確認（CDN キャッシュが強いのでクエリストリングでバストする）
 
 ### 5.3 インシデント履歴
 
-- **2026-04-09 〜 2026-04-11**: `feature/ui-update` に 9コミット（UI全面刷新）を積んだまま main マージ・push を失念。本番が旧4タブ構成のまま2日間放置。README 仕様表も旧構造のまま乖離。→ 2026-04-11 に秘書が検出・同期復旧。以降は本セクションの Push Gate 手順を必須化。
-- **2026-04-11**: `/contents` に [GTO Challenge](https://gto-challenge.vercel.app) を iframe 埋込、タブ名を `CONTENTS` → `CHALLENGE` にリネーム。iframe は `<div>` wrapper に `position: fixed` で `top: 67px; bottom: 57px` 指定（`<iframe>` 単独では intrinsic 150px 高さ問題が発生）。PM 山本 Playwright 検証で重複ゼロ・全チェック PASS を確認。
+- **2026-04-09 〜 2026-04-11**: 機能ブランチに 9コミット（UI全面刷新）を積んだまま main マージ・push を失念。本番が旧4タブ構成のまま2日間放置。README 仕様表も旧構造のまま乖離。→ 2026-04-11 に検出・同期復旧。以降は本セクションの Push Gate 手順を必須化。
+- **2026-04-11**: `/contents` に [GTO Challenge](https://gto-challenge.vercel.app) を iframe 埋込、タブ名を CONTENTS → CHALLENGE にリネーム。iframe は wrapper 要素に `position: fixed` を指定（iframe 単独では intrinsic 150px 高さ問題が発生）。PM の Playwright 検証で重複ゼロ・全チェック PASS。
+- **2026-04-12**: カレンダーストリップ（月ラベル付き日付タブ）と EventCard の STRUCTURE / INFO タブを追加。
+- **2026-04-15**: フォントを Noto Sans JP に統一（`/contents` の Header 非表示化も同時期）。これが最終コミット。
